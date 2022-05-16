@@ -58,7 +58,12 @@
                   </v-img>
                   <v-card-text class="text--primary pa-1">
                     <div class="text-caption indigo--text accent-3">
-                      {{ item.rate || 0 }} {{ item.currency || '' }}
+                      <table style="width: 100%;">
+                        <tr>
+                          <td style="font-weight:600;">{{ item.rate || 0 }} {{ item.currency || '' }}</td>
+                          <td :style="item.qty_indicator"> {{item.actual_qty || 0}}</td>
+                        </tr>
+                      </table>
                     </div>
                   </v-card-text>
                 </v-card>
@@ -104,8 +109,8 @@
         </v-col>
         <v-col cols="3" class="mt-1">
           <v-btn-toggle v-model="items_view" color="orange" group dense rounded>
-            <v-btn small value="list">{{ __('List') }}</v-btn>
             <v-btn small value="card">{{ __('Card') }}</v-btn>
+            <v-btn small value="list">{{ __('List') }}</v-btn>
           </v-btn-toggle>
         </v-col>
         <v-col cols="4" class="mt-2">
@@ -132,7 +137,7 @@ export default {
   data: () => ({
     pos_profile: '',
     flags: {},
-    items_view: 'list',
+    items_view: 'card',
     item_group: 'ALL',
     loading: false,
     items_group: ['ALL'],
@@ -308,6 +313,8 @@ export default {
                 (element) => element.item_code == item.item_code
               );
               item.actual_qty = updated_item.actual_qty;
+              const color = item.actual_qty > 10 ? "green" : item.actual_qty <= 0 ? "red" : "orange";
+              item.qty_indicator = `text-align: center;background-color: ${color} ;border-radius: 5px;color: white; font-weight: 600;`;
               item.serial_no_data = updated_item.serial_no_data;
               item.batch_no_data = updated_item.batch_no_data;
               item.item_uoms = updated_item.item_uoms;
