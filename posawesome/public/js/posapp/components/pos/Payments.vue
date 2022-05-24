@@ -827,7 +827,7 @@ export default {
         'load',
         function () {
           printWindow.print();
-          // printWindow.close();
+          printWindow.close();
           // NOTE : uncomoent this to auto closing printing window
         },
         true
@@ -1161,8 +1161,23 @@ export default {
     this.$nextTick(function () {
       evntBus.$on('send_invoice_doc_payment', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
+        this.invoice_doc.po_date = frappe.datetime.now_date();
+        
         const default_payment = this.invoice_doc.payments.find(
-          (payment) => payment.default == 1
+          (payment) => {
+            if (this.invoice_doc.customer == "HUGO APP" && payment.mode_of_payment == "Hugo") {
+              return payment;
+            }
+            else if (this.invoice_doc.customer == "Pedidos Ya" && payment.mode_of_payment == "Pedidos YA") {
+              return payment;
+            }
+            else if (this.invoice_doc.customer == "FaciShop" && payment.mode_of_payment == "Facishop") {
+              return payment;
+            }
+            else if (this.invoice_doc.customer == "Consumidor" && payment.mode_of_payment == "Efectivo") {
+              return payment;
+            }
+          }
         );
         this.is_credit_sale = 0;
         this.is_write_off_change = 0;

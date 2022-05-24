@@ -150,7 +150,7 @@ def get_items(pos_profile, price_list=None):
                 AND is_fixed_asset = 0
                 {0}
         ORDER BY
-            name asc
+            pos_sort_level ASC, pos_sort ASC
             """.format(
             condition
         ),
@@ -780,6 +780,11 @@ def get_item_detail(item, doc=None, warehouse=None, price_list=None):
 
 
 def get_stock_availability(item_code, warehouse):
+    filters = {"new_item_code": item_code}
+    product_bundle_name = frappe.db.exists("Product Bundle", filters)
+    if not frappe.get_value("Item", item_code, "is_stock_item") and product_bundle_name:
+       product_bundle = frappe.get_doc("Product Bundle", product_bundle_name)
+       item_code = product_bundle.items[0].item_code
     actual_qty = (
         frappe.db.get_value(
             "Stock Ledger Entry",
