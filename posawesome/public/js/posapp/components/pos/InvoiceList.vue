@@ -3,28 +3,10 @@
     <v-dialog v-model="invoicesDialog" max-width="800px" min-width="800px">
       <v-card>
         <v-card-title>
-          <span class="headline indigo--text">{{__('Select Return Invoice')}}</span>
+          <span class="headline indigo--text">{{__('Invoices')}}</span>
         </v-card-title>
         <v-container>
           <v-row class="mb-4">
-            <v-text-field
-              color="indigo"
-              :label="frappe._('Invoice ID')"
-              background-color="white"
-              hide-details
-              v-model="invoice_name"
-              dense
-              clearable
-              class="mx-4"
-            ></v-text-field>
-            <v-btn
-              text
-              class="ml-2"
-              color="primary"
-              dark
-              @click="search_invoices"
-              >{{__('Search')}}</v-btn
-            >
           </v-row>
           <v-row>
             <v-col cols="12" class="pa-1" v-if="dialog_data">
@@ -54,7 +36,7 @@
             color="primary"
             dark
             @click="submit_dialog"
-            >{{__('Select')}}</v-btn
+            >{{__('View')}}</v-btn
           >
         </v-card-actions>
       </v-card>
@@ -75,7 +57,7 @@ export default {
     headers: [
       {
         text: __('Customer'),
-        value: 'customer',
+        value: 'customer_name',
         align: 'start',
         sortable: true,
       },
@@ -104,20 +86,12 @@ export default {
     close_dialog() {
       this.invoicesDialog = false;
     },
-    search_invoices_by_enter(e) {
-      if (e.keyCode === 13) {
-        this.search_invoices();
-      }
-    },
     search_invoices() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.search_invoices_for_return',
-        args: {
-          invoice_name: vm.invoice_name,
-          company: vm.company,
-        },
-        async: false,
+        method: 'posawesome.posawesome.api.posapp.get_today_invoices',
+        args: {},
+        async: true,
         callback: function (r) {
           if (r.message) {
             console.log(r.message)
@@ -129,32 +103,21 @@ export default {
     submit_dialog() {
       if (this.selected.length > 0) {
         const return_doc = this.selected[0];
-        const invoice_doc = {};
-        const items = [];
-        return_doc.items.forEach((item) => {
-          const new_item = { ...item };
-          new_item.qty = item.qty * -1;
-          new_item.stock_qty = item.stock_qty * -1;
-          new_item.amount = item.amount * -1;
-          items.push(new_item);
-        });
-        invoice_doc.items = items;
-        invoice_doc.is_return = 1;
-        invoice_doc.return_against = return_doc.name;
-        invoice_doc.customer = return_doc.customer;
-        const data = { invoice_doc, return_doc };
-        evntBus.$emit('load_return_invoice', data);
+        const data = { invoice_doc: return_doc, return_doc };
+        evntBus.$emit('load_invoice', data);
+        evntBus.$emit('toggle_view_only');
         this.invoicesDialog = false;
       }
     },
     formtCurrency(value) {
-      value = parseFloat(value);
+      value = parseFloat(value); 
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
   },
   created: function () {
-    evntBus.$on('open_returns', (data) => {
+    evntBus.$on('open_invoices', (data) => {
       this.invoicesDialog = true;
+      this.search_invoices()
       this.company = data;
       this.invoice_name = '';
       this.dialog_data = '';
