@@ -943,6 +943,23 @@ def set_customer_info(fieldname, customer, value=""):
 
 
 @frappe.whitelist()
+def get_today_invoices():
+    data = []
+    invoices_list = frappe.get_list(
+        "Sales Invoice",
+        filters={
+            "posting_date": nowdate(),
+            "docstatus": 1,
+        },
+        fields=["name"],
+        limit_page_length=0,
+        order_by="customer",
+    )
+    for invoice in invoices_list:
+        data.append(frappe.get_doc("Sales Invoice", invoice["name"]))
+    return data
+
+@frappe.whitelist()
 def search_invoices_for_return(invoice_name, company):
     invoices_list = frappe.get_list(
         "Sales Invoice",

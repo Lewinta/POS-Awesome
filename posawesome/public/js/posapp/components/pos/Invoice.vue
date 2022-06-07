@@ -619,12 +619,24 @@
             </v-col>
             <v-col cols="12" class="pa-1">
               <v-btn
+                v-show="!view_only"
                 block
                 class="pa-0"
                 color="primary"
                 @click="show_payment"
                 dark
                 >{{ __('PAY') }}</v-btn
+              >
+            </v-col>
+            <v-col cols="12" class="pa-1">
+              <v-btn
+                v-show="view_only"
+                block
+                class="pa-0"
+                color="primary"
+                @click="print_old_invoice"
+                dark
+                >{{ __('PRINT') }}</v-btn
               >
             </v-col>
           </v-row>
@@ -684,6 +696,9 @@ export default {
   },
 
   computed: {
+    view_only(){
+      return !!this.invoice_doc && this.invoice_doc.docstatus == 1;
+    },
     total_qty() {
       this.close_payments();
       let qty = 0;
@@ -731,6 +746,10 @@ export default {
       if (idx >= 0) {
         this.expanded.splice(idx, 1);
       }
+    },
+    
+    print_old_invoice(data) {
+      evntBus.$emit('print_old_invoice', this.invoice_doc.name);
     },
 
     add_one(item) {
@@ -2251,6 +2270,9 @@ export default {
       this.pos_opening_shift = data.pos_opening_shift;
       this.stock_settings = data.stock_settings;
     });
+    evntBus.$on('toggle_view_only', () => {
+      this.view_only = !this.view_only;
+    });
     evntBus.$on('add_item', (item) => {
       this.add_item(item);
     });
@@ -2280,6 +2302,13 @@ export default {
       this.items.forEach((item) => {
         this.update_item_detail(item);
       });
+    });
+    evntBus.$on('load_invoice', (data) => {
+      this.new_invoice(data.invoice_doc);
+      this.discount_amount = data.return_doc.discount_amount;
+      this.additional_discount_percentage =
+        data.return_doc.additional_discount_percentage;
+      this.return_doc = data.return_doc;
     });
     evntBus.$on('load_return_invoice', (data) => {
       this.new_invoice(data.invoice_doc);

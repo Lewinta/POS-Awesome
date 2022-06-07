@@ -39,6 +39,17 @@
                     }}</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
+
+                <v-list-item
+                  @click="open_invoices_dialog">
+                  <v-list-item-icon>
+                    <v-icon>mdi-text-box-check-outline</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ __('View Invoices')}}</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                
                 <v-list-item
                   @click="print_last_invoice"
                   v-if="
@@ -174,6 +185,9 @@ export default {
     close_shift_dialog() {
       evntBus.$emit('open_closing_dialog');
     },
+    open_invoices_dialog() {
+      evntBus.$emit('open_invoices_dialog');
+    },
     show_mesage(data) {
       this.snack = true;
       this.snackColor = data.color;
@@ -245,6 +259,10 @@ export default {
         this.freezTitle = '';
         this.freezeMsg = '';
       });
+    });
+    evntBus.$on('print_old_invoice', (invoice_name) => {
+      this.last_invoice = invoice_name;
+      this.print_last_invoice();
     });
   },
 };

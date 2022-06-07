@@ -3,6 +3,7 @@
     <ClosingDialog></ClosingDialog>
     <Drafts></Drafts>
     <Returns></Returns>
+    <InvoiceList></InvoiceList>
     <NewCustomer></NewCustomer>
     <EditCustomer></EditCustomer>
     <NewAddress></NewAddress>
@@ -78,6 +79,7 @@ import EditCustomer from './EditCustomer.vue';
 import NewAddress from './NewAddress.vue';
 import Variants from './Variants.vue';
 import Returns from './Returns.vue';
+import InvoiceList from './InvoiceList.vue';
 import MpesaPayments from './Mpesa-Payments.vue';
 
 export default {
@@ -101,6 +103,7 @@ export default {
     ClosingDialog,
     NewCustomer,
     Returns,
+    InvoiceList,
     PosOffers,
     PosCoupons,
     EditCustomer,
@@ -146,6 +149,23 @@ export default {
             console.log(r);
           }
         });
+    },
+    get_invoice_data() {
+      // return frappe
+      //   .call(
+      //     'posawesome.posawesome.doctype.pos_closing_shift.pos_closing_shift.make_closing_shift_from_opening',
+      //     {
+      //       opening_shift: this.pos_opening_shift,
+      //     }
+      //   )
+      //   .then((r) => {
+      //     if (r.message) {
+      //       evntBus.$emit('open_ClosingDialog', r.message);
+      //     } else {
+      //       console.log(r);
+      //     }
+      //   });
+      evntBus.$emit('open_invoices', []);
     },
     submit_closing_pos(data) {
       frappe
@@ -201,6 +221,7 @@ export default {
         console.info('LoadPosProfile');
       });
       evntBus.$on('show_payment', (data) => {
+        console.log(data)
         this.payment = true ? data === 'true' : false;
         this.offers = false ? data === 'true' : false;
         this.coupons = false ? data === 'true' : false;
@@ -217,6 +238,9 @@ export default {
       });
       evntBus.$on('open_closing_dialog', () => {
         this.get_closing_data();
+      });
+      evntBus.$on('open_invoices_dialog', () => {
+        this.get_invoice_data();
       });
       evntBus.$on('submit_closing_pos', (data) => {
         this.submit_closing_pos(data);
