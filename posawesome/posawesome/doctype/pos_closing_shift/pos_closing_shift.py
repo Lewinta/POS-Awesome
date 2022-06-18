@@ -37,6 +37,12 @@ class POSClosingShift(Document):
         self.delete_draft_invoices()
         opening_entry.save()
 
+    def on_cancel(self):
+        opening_entry = frappe.get_doc("POS Opening Shift", self.pos_opening_shift)
+        opening_entry.pos_closing_shift = ""
+        opening_entry.set_status()
+        opening_entry.db_update()
+
     def delete_draft_invoices(self):
         if frappe.get_value("POS Profile", self.pos_profile, "posa_allow_delete"):
             data = frappe.db.sql("""
