@@ -1,7 +1,7 @@
 {
  "category": "Modules",
  "charts": [],
- "creation": "2020-10-21 01:32:40.829028",
+ "creation": "2022-06-24 00:23:29.419185",
  "developer_mode_only": 0,
  "disable_user_customization": 1,
  "docstatus": 0,
@@ -12,21 +12,34 @@
  "idx": 0,
  "is_default": 0,
  "is_standard": 1,
- "label": "POS Awesome",
+ "label": "Empanallenas",
  "links": [],
- "modified": "2022-06-24 00:23:36.685158",
+ "modified": "2022-06-24 00:33:59.697703",
  "modified_by": "Administrator",
  "module": "POSAwesome",
- "name": "POS Awesome",
+ "name": "Empanallenas",
  "onboarding": "",
  "owner": "Administrator",
  "pin_to_bottom": 0,
- "pin_to_top": 0,
+ "pin_to_top": 1,
  "shortcuts": [
   {
-   "label": "POS Awesome",
+   "doc_view": "",
+   "label": "Apertura POS",
+   "link_to": "POS Opening Shift",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Punto de Venta",
    "link_to": "posapp",
    "type": "Page"
+  },
+  {
+   "doc_view": "",
+   "label": "Cierre POS",
+   "link_to": "POS Closing Shift",
+   "type": "DocType"
   }
  ]
 }

@@ -13,6 +13,63 @@
       ></v-progress-linear>
       <div class="overflow-y-auto px-2 pt-2" style="max-height: 75vh">
         <v-row v-if="invoice_doc" class="px-1 py-0">
+          <v-col cols="12" v-if="pos_profile.posa_display_additional_notes">
+            <v-textarea
+              class="pa-0"
+              outlined
+              dense
+              background-color="white"
+              clearable
+              color="indigo"
+              auto-grow
+              rows="2"
+              :label="frappe._('Customer Name')"
+              v-model="invoice_doc.posa_notes"
+              :value="invoice_doc.posa_notes"
+            ></v-textarea>
+          </v-col>
+            <v-col cols="7">
+              <v-text-field
+                v-model="invoice_doc.po_no"
+                :label="frappe._('Purchase Order')"
+                outlined
+                dense
+                background-color="white"
+                clearable
+                color="indigo"
+                hide-details
+              ></v-text-field>
+            </v-col>
+            <v-col cols="5">
+              <v-menu
+                ref="po_date_menu"
+                v-model="po_date_menu"
+                :close-on-content-click="false"
+                transition="scale-transition"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    v-model="invoice_doc.po_date"
+                    :label="frappe._('Purchase Order Date')"
+                    readonly
+                    outlined
+                    dense
+                    hide-details
+                    v-bind="attrs"
+                    v-on="on"
+                    color="indigo"
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="invoice_doc.po_date"
+                  no-title
+                  scrollable
+                  color="indigo"
+                  @input="po_date_menu = false"
+                >
+                </v-date-picker>
+              </v-menu>
+            </v-col>
           <v-col cols="7">
             <v-text-field
               outlined
@@ -39,7 +96,6 @@
               dense
             ></v-text-field>
           </v-col>
-
           <v-col cols="7" v-if="diff_payment < 0 && !invoice_doc.is_return">
             <v-text-field
               outlined
@@ -378,70 +434,7 @@
               </template>
             </v-autocomplete>
           </v-col>
-          <v-col cols="12" v-if="pos_profile.posa_display_additional_notes">
-            <v-textarea
-              class="pa-0"
-              outlined
-              dense
-              background-color="white"
-              clearable
-              color="indigo"
-              auto-grow
-              rows="2"
-              :label="frappe._('Additional Notes')"
-              v-model="invoice_doc.posa_notes"
-              :value="invoice_doc.posa_notes"
-            ></v-textarea>
-          </v-col>
         </v-row>
-
-        <div v-if="pos_profile.posa_allow_customer_purchase_order">
-          <v-divider></v-divider>
-          <v-row class="px-1 py-0" justify="center" align="start">
-            <v-col cols="6">
-              <v-text-field
-                v-model="invoice_doc.po_no"
-                :label="frappe._('Purchase Order')"
-                outlined
-                dense
-                background-color="white"
-                clearable
-                color="indigo"
-                hide-details
-              ></v-text-field>
-            </v-col>
-            <v-col cols="6">
-              <v-menu
-                ref="po_date_menu"
-                v-model="po_date_menu"
-                :close-on-content-click="false"
-                transition="scale-transition"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="invoice_doc.po_date"
-                    :label="frappe._('Purchase Order Date')"
-                    readonly
-                    outlined
-                    dense
-                    hide-details
-                    v-bind="attrs"
-                    v-on="on"
-                    color="indigo"
-                  ></v-text-field>
-                </template>
-                <v-date-picker
-                  v-model="invoice_doc.po_date"
-                  no-title
-                  scrollable
-                  color="indigo"
-                  @input="po_date_menu = false"
-                >
-                </v-date-picker>
-              </v-menu>
-            </v-col>
-          </v-row>
-        </div>
         <v-divider></v-divider>
         <v-row class="px-1 py-0" align="start" no-gutters>
           <v-col
@@ -775,7 +768,7 @@ export default {
         async: true,
         callback: function (r) {
           if (r.message) {
-            vm.load_print_page();
+            // vm.load_print_page();
             evntBus.$emit('set_last_invoice', vm.invoice_doc.name);
             evntBus.$emit('show_mesage', {
               text: `Invoice ${r.message.name} is Submited`,
@@ -813,25 +806,44 @@ export default {
         this.pos_profile.print_format||
         this.pos_profile.print_format_for_online ;
       const letter_head = this.pos_profile.letter_head || 0;
-      const url =
-        frappe.urllib.get_base_url() +
-        '/printview?doctype=Sales%20Invoice&name=' +
-        this.invoice_doc.name +
-        '&trigger_print=1' +
-        '&format=' +
-        print_format +
-        '&no_letterhead=' +
-        letter_head;
-      const printWindow = window.open(url, 'Print');
-      printWindow.addEventListener(
-        'load',
-        function () {
-          printWindow.print();
-          printWindow.close();
-          // NOTE : uncomoent this to auto closing printing window
-        },
-        true
-      );
+      // const url =
+      //   frappe.urllib.get_base_url() +
+      //   '/printview?doctype=Sales%20Invoice&name=' +
+      //   this.invoice_doc.name +
+      //   '&trigger_print=0' +
+      //   '&format=' +
+      //   'POS%20Awesome' +
+      //   '&no_letterhead=' +
+      //   letter_head;
+      // const printWindow = window.open(url, 'Print');
+      // printWindow.addEventListener(
+      //   'load',
+      //   function () {
+          frappe.call({
+            method: 'posawesome.posawesome.api.posapp.print_invoice',
+            args: {
+              invoice: this.invoice_doc.name,
+            },
+            async: true,
+            callback: function (r) {
+              if (r.message) {
+                // vm.load_print_page();
+                evntBus.$emit('set_last_invoice', vm.invoice_doc.name);
+                evntBus.$emit('show_mesage', {
+                  text: `Invoice ${r.message.name} sent to Printer`,
+                  color: 'success',
+                });
+                frappe.utils.play_sound('submit');
+                this.addresses = [];
+              }
+            },
+          });
+      //     // printWindow.print();
+      //     printWindow.close();
+      //     // NOTE : uncomoent this to auto closing printing window
+      //   },
+      //   true
+      // );
     },
     validate_due_date() {
       const today = frappe.datetime.now_date();

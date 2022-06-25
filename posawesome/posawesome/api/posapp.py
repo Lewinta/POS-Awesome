@@ -146,9 +146,10 @@ def get_items(pos_profile, price_list=None):
             `tabItem`
         WHERE
             disabled = 0
-                AND is_sales_item = 1
-                AND is_fixed_asset = 0
-                {0}
+            AND is_sales_item = 1
+            AND is_fixed_asset = 0
+            AND item_group != 'Servicios'
+            {0}
         ORDER BY
             pos_sort_level ASC, pos_sort ASC
             """.format(
@@ -780,23 +781,21 @@ def get_item_detail(item, doc=None, warehouse=None, price_list=None):
 
 
 def get_stock_availability(item_code, warehouse):
-    filters = {"new_item_code": item_code}
-    product_bundle_name = frappe.db.exists("Product Bundle", filters)
-    if not frappe.get_value("Item", item_code, "is_stock_item") and product_bundle_name:
-       product_bundle = frappe.get_doc("Product Bundle", product_bundle_name)
-       item_code = product_bundle.items[0].item_code
-    actual_qty = (
-        frappe.db.get_value(
-            "Stock Ledger Entry",
-            filters={
-                "item_code": item_code,
-                "warehouse": warehouse,
-                "is_cancelled": 0,
-            },
-            fieldname="qty_after_transaction",
-            order_by="posting_date desc, posting_time desc, creation desc",
-        )
-        or 0.0
+    stock_item_qty =  frappe.db.get_value(
+        "Stock Ledger Entry",
+        filters={
+            "item_code": item_code,
+            "warehouse": warehouse,
+            "is_cancelled": 0,
+        },
+        fieldname="qty_after_transaction",
+        order_by="posting_date desc, posting_time desc, creation desc",
+    )
+    if frappe.db.exists("Product Bundle", item_code):
+        product_bundle = frappe.get_doc("Product Bundle", item_code)
+        return get_stock_availability(product_bundle.items[0].item_code, warehouse)
+    
+    actual_qty = ( stock_item_qty or 0.0
     )
     return actual_qty
 
@@ -945,19 +944,30 @@ def set_customer_info(fieldname, customer, value=""):
 @frappe.whitelist()
 def get_today_invoices():
     data = []
+    filters={
+        "posa_pos_opening_shift": get_last_opening(),
+        "docstatus": 1,
+    }
+    print(filters)
     invoices_list = frappe.get_list(
         "Sales Invoice",
-        filters={
-            "posting_date": nowdate(),
-            "docstatus": 1,
-        },
-        fields=["name"],
+        filters,
         limit_page_length=0,
         order_by="customer",
     )
+    print(invoices_list)
     for invoice in invoices_list:
         data.append(frappe.get_doc("Sales Invoice", invoice["name"]))
+    print(data)
     return data
+
+def get_last_opening():
+    result = frappe.get_list(
+        "POS Opening Shift",
+        {"status": "Open", "docstatus":1},
+        order_by="name desc", limit=1
+    )
+    return result[0].name if result else ""
 
 @frappe.whitelist()
 def search_invoices_for_return(invoice_name, company):
@@ -1426,3 +1436,7 @@ def get_customer_info(customer):
 
 def get_company_domain(company):
     return frappe.get_cached_value("Company", cstr(company), "domain")
+
+@frappe.whitelist()
+def print_invoice(invoice):
+    frappe.db.set_value("Sales Invoice", invoice, "printed", 0)

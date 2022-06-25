@@ -67,6 +67,23 @@
             :items-per-page="itemsPerPage"
             hide-default-footer
           >
+            <template v-slot:item.uom="{ item }">
+              <v-btn
+                      icon
+                      color="indigo lighten-1"
+                      @click.stop="subtract_one(item)"
+                    >
+                      <v-icon>mdi-minus-circle-outline</v-icon>
+                    </v-btn>
+                    <h-spacer></h-spacer>
+                                        <v-btn
+                      :disabled="!!item.posa_is_offer || !!item.posa_is_replace"
+                      icon
+                      color="indigo lighten-1"
+                      @click.stop="add_one(item)"
+                    >
+                      <v-icon>mdi-plus-circle-outline</v-icon>
+                    </v-btn></template>
             <template v-slot:item.qty="{ item }">{{
               formtCurrency(item.qty)
             }}</template>
@@ -77,15 +94,19 @@
               formtCurrency(item.qty * item.rate)
             }}</template>
             <template v-slot:item.posa_is_offer="{ item }">
-              <v-simple-checkbox
-                :value="!!item.posa_is_offer || !!item.posa_is_replace"
-                disabled
-              ></v-simple-checkbox>
+                 <v-btn
+                      :disabled="!!item.posa_is_offer || !!item.posa_is_replace"
+                      icon
+                      color="red"
+                      @click.stop="remove_item(item)"
+                    >
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
             </template>
 
             <template v-slot:expanded-item="{ headers, item }">
               <td :colspan="headers.length" class="ma-0 pa-0">
-                <v-row class="ma-0 pa-0">
+                <!-- <v-row class="ma-0 pa-0">
                   <v-col cols="1">
                     <v-btn
                       :disabled="!!item.posa_is_offer || !!item.posa_is_replace"
@@ -117,7 +138,7 @@
                       <v-icon>mdi-plus-circle-outline</v-icon>
                     </v-btn>
                   </v-col>
-                </v-row>
+                </v-row> -->
                 <v-row class="ma-0 pa-0">
                   <v-col cols="4">
                     <v-text-field
@@ -511,7 +532,7 @@
             >
               <v-text-field
                 v-model="discount_amount"
-                :label="frappe._('Additional Discount')"
+                :label="frappe._('Desc. Adicional')"
                 ref="discount"
                 outlined
                 dense
@@ -551,7 +572,7 @@
             <v-col cols="6" class="pa-1 mt-2">
               <v-text-field
                 :value="formtCurrency(total_items_discount_amount)"
-                :label="frappe._('Items Discounts')"
+                :label="frappe._('Desc. Productos')"
                 outlined
                 dense
                 readonly
@@ -682,11 +703,11 @@ export default {
           sortable: true,
           value: 'item_name',
         },
+        { text: __('Adjust'), value: 'uom', align: 'center' },
         { text: __('QTY'), value: 'qty', align: 'center' },
-        { text: __('UOM'), value: 'uom', align: 'center' },
         { text: __('Rate'), value: 'rate', align: 'center' },
         { text: __('Amount'), value: 'amount', align: 'center' },
-        { text: __('is Offer'), value: 'posa_is_offer', align: 'center' },
+        { text: __('Delete'), value: 'posa_is_offer', align: 'center' },
       ],
     };
   },

@@ -19,7 +19,7 @@
             autofocus
             outlined
             color="indigo"
-            :label="frappe._('Search Items')"
+            :label="frappe._('Buscar Productos')"
             hint="Search by item code, serial number, batch no or barcode"
             background-color="white"
             hide-details
@@ -100,7 +100,7 @@
         <v-col cols="12">
           <v-select
             :items="items_group"
-            :label="frappe._('Items Group')"
+            :label="frappe._('Item Group')"
             dense
             outlined
             hide-details

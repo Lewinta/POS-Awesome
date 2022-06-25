@@ -1,0 +1,130 @@
+<style>
+	.print-format table, .print-format tr, 
+	.print-format td, .print-format div, .print-format p {
+		line-height: 150%;
+		vertical-align: middle;
+	}
+	@media screen {
+		.print-format {
+			width: 4in;
+			padding: 0.25in;
+			min-height: 8in;
+		}
+	}
+</style>
+
+{% if letter_head %}
+    {{ letter_head }}
+{% endif %}
+
+<p class="text-center" style="margin-bottom: 1rem;">
+	{{ company }}<br>
+	<b>{{ select_print_heading || __("Invoice") }}</b><br>
+</p>
+<p>
+	<b>{{ __("Receipt No") }}:</b> {{ name.replace("ACC-SINV-", "") }}<br> 
+	<b>{{ __("Cashier") }}:</b>Elba Llenas<br>
+	<b>{{ __("Customer") }}:</b> {{ customer_name }} {% if posa_notes %} : {{ posa_notes }}{% endif %} <br>
+	{% if po_no %}
+	    <b>{{ __("Orden") }}:</b> {{ po_no }}<br>
+	{% endif %}
+	<b>{{ __("Date") }}:</b> {{ frappe.format(posting_date, {"fieldtype": "Date"}) }}<br>
+	<b>{{ __("Time") }}:</b> {{ frappe.format(posting_time, {"fieldtype": "Time"}) }}<br>
+</p>
+
+<hr>
+<table class="table table-condensed">
+	<thead>
+		<tr>
+			<th width="50%">{{ __("Item") }}</th>
+			<th width="25%" class="text-right">{{ __("Qty") }}</th>
+			<th width="25%" class="text-right">{{ __("Total") }}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for item in items %}
+		<tr>
+			<td>
+				{{ item.item_code }}
+				{% if item.serial_no %}
+					<br><b>{{ __("SR.No") }}:</b><br>
+					{{ item.serial_no | replace("\n", ", ") }}
+				{% endif %}
+			</td>
+			<td class="text-right">{{ item.qty }} @ {{ frappe.format(item.rate, {"fieldtype": "Float"}) }}</td>
+			<td class="text-right">{{ frappe.format(item.amount, {"fieldtype": "Currency"}) }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<table class="table table-condensed no-border">
+	<tbody>
+		{% for row in taxes %}
+		  {% if not row.included_in_print_rate || flags.show_inclusive_tax_in_print %}
+			<tr>
+				<td class="text-right" style="width: 70%">
+				    {% if '%' in row.description %}
+					    {{ row.description }}
+					{% else %}
+					    {{ row.description }}@{{ item.rate }}%
+					{% endif %}
+				</td>
+				<td class="text-right">
+					{{ frappe.format(item.tax_amount, {"fieldtype": "Currency"}) }}
+				</td>
+			<tr>
+		  {% endif %}
+		{% endfor %}
+
+		{% if discount_amount %}
+		<tr>
+			<td class="text-right" style="width: 75%">
+				{{ __("Discount") }}
+			</td>
+			<td class="text-right">
+				{{ frappe.format(discount_amount, {"fieldtype": "Currency"}) }}
+			</td>
+		</tr>
+		{% endif %}
+		<tr>
+			<td class="text-right" style="width: 75%">
+				<b>{{ __("Grand Total") }}</b>
+			</td>
+			<td class="text-right">
+				{{ frappe.format(grand_total, {"fieldtype": "Currency"}) }}
+			</td>
+		</tr>
+		
+		{% for row in payments %}
+			<tr>
+				<td class="text-right" style="width: 70%">
+				    {{ row.mode_of_payment }}
+				</td>
+				<td class="text-right">
+					{{ frappe.format(row.amount, {"fieldtype": "Currency"}) }}
+				</td>
+			<tr>
+		{% endfor %}
+		<tr>
+			<td class="text-right" style="width: 75%">
+				<b>{{ __("Paid Amount") }}</b>
+			</td>
+			<td class="text-right">
+				{{ frappe.format(paid_amount, {"fieldtype": "Currency"}) }}
+			</td>
+		</tr>
+		{% if change_amount %}
+			<tr>
+				<td class="text-right" style="width: 75%">
+					<b>{{ __("Change Amount") }}</b>
+				</td>
+				<td class="text-right">
+					{{ frappe.format(change_amount, {"fieldtype": "Currency"}) }}
+				</td>
+			</tr>
+		{% endif %}
+	</tbody>
+</table>
+<hr>
+<p>{{ terms || "" }}</p>
+<p class="text-center">{{ __("Gracias por visitarnos, vuelva pronto.") }}</p>

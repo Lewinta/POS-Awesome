@@ -1,17 +1,17 @@
 <template>
   <nav>
     <v-app-bar app height="40" class="elevation-2">
-      <v-app-bar-nav-icon
+      <!-- <v-app-bar-nav-icon
         @click.stop="drawer = !drawer"
         class="grey--text"
-      ></v-app-bar-nav-icon>
+      ></v-app-bar-nav-icon> -->
       <v-toolbar-title
         @click="go_desk"
         style="cursor: pointer"
         class="text-uppercase indigo--text"
       >
-        <span class="font-weight-light">pos</span>
-        <span>awesome</span>
+        <span class="font-weight-light"> </span>
+        <span>Empanallenas</span>
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -158,7 +158,7 @@ export default {
       snack: false,
       snackColor: '',
       snackText: '',
-      company: 'POS Awesome',
+      company: 'Empanallenas',
       company_img: '/assets/erpnext/images/erpnext-logo.svg',
       pos_profile: '',
       freeze: false,
@@ -209,27 +209,47 @@ export default {
     },
     print_last_invoice() {
       if (!this.last_invoice) return;
-      const print_format =
-        this.pos_profile.print_format_for_online ||
-        this.pos_profile.print_format;
-      const letter_head = this.pos_profile.letter_head || 0;
-      const url =
-        frappe.urllib.get_base_url() +
-        '/printview?doctype=Sales%20Invoice&name=' +
-        this.last_invoice +
-        '&trigger_print=1' +
-        '&format=' +
-        print_format +
-        '&no_letterhead=' +
-        letter_head;
-      const printWindow = window.open(url, 'Print');
-      printWindow.addEventListener(
-        'load',
-        function () {
-          printWindow.print();
+      // const print_format =
+      //   this.pos_profile.print_format_for_online ||
+      //   this.pos_profile.print_format;
+      // const letter_head = this.pos_profile.letter_head || 0;
+      // const url =
+      //   frappe.urllib.get_base_url() +
+      //   '/printview?doctype=Sales%20Invoice&name=' +
+      //   this.last_invoice +
+      //   '&trigger_print=0' +
+      //   '&format=' +
+      //   print_format +
+      //   '&no_letterhead=' +
+      //   letter_head;
+      // const printWindow = window.open(url, 'Print');
+      // printWindow.addEventListener(
+      //   'load',
+      //   function () {
+      //     printWindow.print();
+      //     printWindow.close();
+      //   },
+      //   true
+      // );
+      frappe.call({
+        method: 'posawesome.posawesome.api.posapp.print_invoice',
+        args: {
+          invoice: this.last_invoice,
         },
-        true
-      );
+        async: true,
+        callback: function (r) {
+          if (r.message) {
+            // vm.load_print_page();
+            evntBus.$emit('set_last_invoice', this.last_invoice);
+            evntBus.$emit('show_mesage', {
+              text: `Invoice ${r.message} sent to Printer`,
+              color: 'success',
+            });
+            frappe.utils.play_sound('submit');
+            evntBus.$emit('new_invoice', 'false');
+          }
+        },
+      });
     },
   },
   created: function () {

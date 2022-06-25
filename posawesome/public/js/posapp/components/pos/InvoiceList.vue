@@ -62,6 +62,18 @@ export default {
         sortable: true,
       },
       {
+        text: __('Entregar a'),
+        value: 'posa_notes',
+        align: 'start',
+        sortable: true,
+      },
+      {
+        text: __('Orden'),
+        value: 'po_no',
+        align: 'start',
+        sortable: true,
+      },
+      {
         text: __('Date'),
         align: 'start',
         sortable: true,
@@ -94,7 +106,6 @@ export default {
         async: true,
         callback: function (r) {
           if (r.message) {
-            console.log(r.message)
             vm.dialog_data = r.message;
           }
         },
