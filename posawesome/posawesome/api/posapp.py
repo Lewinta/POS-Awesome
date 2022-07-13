@@ -1440,3 +1440,4 @@ def get_company_domain(company):
 @frappe.whitelist()
 def print_invoice(invoice):
     frappe.db.set_value("Sales Invoice", invoice, "printed", 0)
+    return invoice

@@ -48,12 +48,12 @@
                       '/assets/posawesome/js/posapp/components/pos/placeholder-image.png'
                     "
                     class="white--text align-end"
-                    gradient="to bottom, rgba(0,0,0,.2), rgba(0,0,0,.7)"
+                   
                     height="100px"
                   >
                     <v-card-text
-                      v-text="item.item_name"
-                      class="text-subtitle-2 px-1 pb-2"
+                      v-text=" !!item.image ? '' : item.item_name" 
+                      class="custom-text-subtitle-2 px-1 pb-2"
                     ></v-card-text>
                   </v-img>
                   <v-card-text class="text--primary pa-1">
@@ -71,7 +71,7 @@
             </v-row>
           </div>
           <div fluid class="items" v-if="items_view == 'list'">
-            <div class="my-0 py-0 overflow-y-auto" style="max-height: 65vh">
+            <div class="my-0 py-0 overflow-y-auto" style="max-height: 30vh">
               <template>
                 <v-data-table
                   :headers="items_headers"
@@ -471,4 +471,14 @@ export default {
 </script>
 
 <style scoped>
+
+.custom-text-subtitle-2 {
+    font-size: .875rem!important;
+    font-weight: 500;
+    line-height: 1.375rem;
+    letter-spacing: .0071428571em!important;
+    font-family: Roboto,sans-serif!important;
+    color: black;
+    text-align: center;
+}
 </style>

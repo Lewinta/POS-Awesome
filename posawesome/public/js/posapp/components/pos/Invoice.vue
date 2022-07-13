@@ -163,7 +163,7 @@
                       v-model.number="item.qty"
                       type="number"
                       @change="calc_sotck_gty(item, $event)"
-                      :disabled="!!item.posa_is_offer || !!item.posa_is_replace"
+                      :disabled=0 
                     ></v-text-field>
                   </v-col>
                   <v-col cols="4">
@@ -705,8 +705,8 @@ export default {
         },
         { text: __('Adjust'), value: 'uom', align: 'center' },
         { text: __('QTY'), value: 'qty', align: 'center' },
-        { text: __('Rate'), value: 'rate', align: 'center' },
-        { text: __('Amount'), value: 'amount', align: 'center' },
+        //{ text: __('Rate'), value: 'rate', align: 'center' },
+        { text: __('Rate'), value: 'amount', align: 'center' },
         { text: __('Delete'), value: 'posa_is_offer', align: 'center' },
       ],
     };
