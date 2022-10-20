@@ -2332,6 +2332,7 @@ export default {
       this.return_doc = data.return_doc;
     });
     evntBus.$on('load_return_invoice', (data) => {
+      console.error({ data})
       this.new_invoice(data.invoice_doc);
       this.discount_amount = -data.return_doc.discount_amount;
       this.additional_discount_percentage =

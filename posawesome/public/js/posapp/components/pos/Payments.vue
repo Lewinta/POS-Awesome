@@ -96,7 +96,7 @@
               dense
             ></v-text-field>
           </v-col>
-          <v-col cols="7" v-if="diff_payment < 0 && !invoice_doc.is_return">
+          <v-col cols="7" v-if="diff_payment < 0 && !invoice_doc.is_return" v-show="false">
             <v-text-field
               outlined
               color="indigo"
@@ -111,7 +111,7 @@
             ></v-text-field>
           </v-col>
 
-          <v-col cols="5" v-if="diff_payment < 0 && !invoice_doc.is_return">
+          <v-col cols="5" v-if="diff_payment < 0 && !invoice_doc.is_return" v-show="false">
             <v-text-field
               outlined
               color="indigo"

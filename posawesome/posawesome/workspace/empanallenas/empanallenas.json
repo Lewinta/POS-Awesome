@@ -14,7 +14,7 @@
  "is_standard": 1,
  "label": "Empanallenas",
  "links": [],
- "modified": "2022-06-24 00:33:59.697703",
+ "modified": "2022-09-05 17:54:29.602992",
  "modified_by": "Administrator",
  "module": "POSAwesome",
  "name": "Empanallenas",
@@ -40,6 +40,12 @@
    "label": "Cierre POS",
    "link_to": "POS Closing Shift",
    "type": "DocType"
+  },
+  {
+   "doc_view": "",
+   "label": "Administracion",
+   "link_to": "Admin Panel",
+   "type": "Dashboard"
   }
  ]
 }

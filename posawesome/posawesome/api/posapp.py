@@ -329,6 +329,7 @@ def get_customer_names(pos_profile):
 @frappe.whitelist()
 def update_invoice(data):
     data = json.loads(data)
+
     if data.get("name"):
         invoice_doc = frappe.get_doc("Sales Invoice", data.get("name"))
         invoice_doc.update(data)
@@ -346,12 +347,28 @@ def update_invoice(data):
 
     for item in invoice_doc.items:
         add_taxes_from_tax_template(item, invoice_doc)
+
     if frappe.get_value("POS Profile", invoice_doc.pos_profile, "posa_tax_inclusive"):
         if invoice_doc.get("taxes"):
             for tax in invoice_doc.taxes:
                 tax.included_in_print_rate = 1
 
     invoice_doc.save()
+
+    if invoice_doc.is_return and invoice_doc.return_against:
+        ref_doc = frappe.get_doc(invoice_doc.doctype, invoice_doc.return_against)
+        if ref_doc.get("payments", []):
+            invoice_doc.set("payments", list())
+
+            for d in ref_doc.get("payments", []):
+                invoice_doc.append("payments", frappe.copy_doc(d))
+
+    try:
+        invoice_doc.flags.ignore_validate = True
+        invoice_doc.save()
+    except Exception as e:
+        pass
+
     return invoice_doc
 
 
@@ -361,6 +378,10 @@ def submit_invoice(invoice, data):
     invoice = json.loads(invoice)
     invoice_doc = frappe.get_doc("Sales Invoice", invoice.get("name"))
     invoice_doc.update(invoice)
+    
+    if invoice_doc.is_return:
+        invoice_doc.flags.ignore_validate = True
+
     if invoice.get("posa_delivery_date"):
         invoice_doc.update_stock = 0
     mop_cash_list = [
@@ -446,6 +467,7 @@ def submit_invoice(invoice, data):
     invoice_doc.flags.ignore_permissions = True
     frappe.flags.ignore_account_permission = True
     invoice_doc.posa_is_printed = 1
+    
     invoice_doc.save()
 
     if frappe.get_value(
