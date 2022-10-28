@@ -700,14 +700,14 @@ export default {
         {
           text: __('Name'),
           align: 'start',
-          sortable: true,
+          sortable: false,
           value: 'item_name',
         },
-        { text: __('Adjust'), value: 'uom', align: 'center' },
-        { text: __('QTY'), value: 'qty', align: 'center' },
+        { text: __('Adjust'), value: 'uom', align: 'center', sortable: false },
+        { text: __('QTY'), value: 'qty', align: 'center', sortable: false },
         //{ text: __('Rate'), value: 'rate', align: 'center' },
-        { text: __('Rate'), value: 'amount', align: 'center' },
-        { text: __('Delete'), value: 'posa_is_offer', align: 'center' },
+        { text: __('Rate'), value: 'amount', align: 'center', sortable: false },
+        { text: __('Delete'), value: 'posa_is_offer', align: 'center', sortable: false },
       ],
     };
   },
@@ -808,7 +808,7 @@ export default {
           new_item.serial_no_selected.push(item.to_set_serial_no);
           item.to_set_serial_no = null;
         }
-        this.items.unshift(new_item);
+        this.items.push(new_item);
         this.update_item_detail(new_item);
       } else {
         const cur_item = this.items[index];
