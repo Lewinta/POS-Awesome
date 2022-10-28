@@ -1189,7 +1189,7 @@ export default {
             else if (this.invoice_doc.customer == "FaciShop" && payment.mode_of_payment == "Facishop") {
               return payment;
             }
-            else if (this.invoice_doc.customer == "Consumidor" && payment.mode_of_payment == "Efectivo") {
+            else if (["Delivery", "Consumidor"].includes(this.invoice_doc.customer) && payment.mode_of_payment == "Efectivo") {
               return payment;
             }
           }
