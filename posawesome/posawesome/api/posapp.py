@@ -310,8 +310,9 @@ def get_customer_group_condition(pos_profile):
 @frappe.whitelist()
 def get_customer_names(pos_profile):
     pos_profile = json.loads(pos_profile)
-    condition = ""
-    condition += get_customer_group_condition(pos_profile)
+    conditions = ["disabled = 0"]
+    conditions.append(get_customer_group_condition(pos_profile))
+    conditions = " and ".join(conditions)
     customers = frappe.db.sql(
         """
         SELECT name, mobile_no, email_id, tax_id, customer_name, primary_address
@@ -319,7 +320,7 @@ def get_customer_names(pos_profile):
         WHERE {0}
         ORDER by name
         """.format(
-            condition
+            conditions
         ),
         as_dict=1,
     )
@@ -459,7 +460,12 @@ def submit_invoice(invoice, data):
     else:
         invoice_doc.is_pos = 0
 
-    invoice_doc.payments = payments
+    invoice_doc.payments = list()
+    for row in payments:
+        row.amount = flt(row.amount)
+        row.base_amount = flt(row.base_amount)
+        invoice_doc.append("payments", row)
+
     if frappe.get_value("POS Profile", invoice_doc.pos_profile, "posa_auto_set_batch"):
         set_batch_nos(invoice_doc, "warehouse", throw=True)
     set_batch_nos_for_bundels(invoice_doc, "warehouse", throw=True)

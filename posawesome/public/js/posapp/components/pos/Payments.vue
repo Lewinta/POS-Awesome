@@ -1183,6 +1183,9 @@ export default {
             else if (this.invoice_doc.customer == "Pedidos Ya" && payment.mode_of_payment == "Pedidos YA") {
               return payment;
             }
+            else if (this.invoice_doc.customer == "DIDI" && payment.mode_of_payment == "DIDI") {
+              return payment;
+            }
             else if (this.invoice_doc.customer == "Uber Eats" && payment.mode_of_payment == "Uber Eats") {
               return payment;
             }
