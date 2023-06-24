@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="invoicesDialog" max-width="800px" min-width="800px">
+    <v-dialog v-model="invoicesDialog" max-width="1200px" min-width="1200px">
       <v-card>
         <v-card-title>
           <span class="headline indigo--text">{{__('Invoices')}}</span>
@@ -70,6 +70,12 @@ export default {
       {
         text: __('Orden'),
         value: 'po_no',
+        align: 'start',
+        sortable: true,
+      },
+      {
+        text: __('Mode of Payment'),
+        value: 'mode_of_payment',
         align: 'start',
         sortable: true,
       },

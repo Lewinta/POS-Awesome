@@ -23,6 +23,7 @@ from erpnext.accounts.doctype.loyalty_program.loyalty_program import (
     get_loyalty_program_details_with_points,
 )
 from posawesome.posawesome.doctype.pos_coupon.pos_coupon import check_coupon_code
+from frappe.query_builder import Criterion
 
 # from posawesome import console
 
@@ -971,23 +972,26 @@ def set_customer_info(fieldname, customer, value=""):
 
 @frappe.whitelist()
 def get_today_invoices():
-    data = []
-    filters={
-        "posa_pos_opening_shift": get_last_opening(),
-        "docstatus": 1,
-    }
-    print(filters)
-    invoices_list = frappe.get_list(
-        "Sales Invoice",
-        filters,
-        limit_page_length=0,
-        order_by="customer",
-    )
-    print(invoices_list)
-    for invoice in invoices_list:
-        data.append(frappe.get_doc("Sales Invoice", invoice["name"]))
-    print(data)
-    return data
+    SINV = frappe.qb.DocType("Sales Invoice")
+    SINVP = frappe.qb.DocType("Sales Invoice Payment")
+    conditions = [
+        SINV.docstatus == 1,
+        SINV.posa_pos_opening_shift == get_last_opening()
+    ]
+
+    return frappe.qb.from_(SINV).select(
+        SINV.name,
+        SINV.customer_name,
+        SINV.posa_notes,
+        SINV.po_no,
+        SINV.posting_date,
+        SINV.grand_total,
+        SINVP.mode_of_payment,
+    ).left_join(SINVP).on(
+        SINV.name == SINVP.parent
+    ).where(
+        Criterion.all(conditions)
+    ).groupby(SINV.name).orderby(SINV.customer).run(as_dict=True)
 
 def get_last_opening():
     result = frappe.get_list(
