@@ -119,11 +119,17 @@ export default {
     },
     submit_dialog() {
       if (this.selected.length > 0) {
-        const return_doc = this.selected[0];
-        const data = { invoice_doc: return_doc, return_doc };
-        evntBus.$emit('load_invoice', data);
-        evntBus.$emit('toggle_view_only');
-        this.invoicesDialog = false;
+        const name = this.selected[0].name;
+        frappe.call({
+          method: "posawesome.posawesome.api.posapp.get_invoice",
+          args: {name}
+        }).then( ({message}) =>  {
+          const return_doc = message;
+          const data = { invoice_doc: return_doc, return_doc };
+          evntBus.$emit('load_invoice', data);
+          evntBus.$emit('toggle_view_only');
+          this.invoicesDialog = false;
+        })
       }
     },
     formtCurrency(value) {

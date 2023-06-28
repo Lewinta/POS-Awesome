@@ -1473,3 +1473,7 @@ def get_company_domain(company):
 def print_invoice(invoice):
     frappe.db.set_value("Sales Invoice", invoice, "printed", 0)
     return invoice
+
+@frappe.whitelist()
+def get_invoice(name):
+    return frappe.get_doc("Sales Invoice", name)
